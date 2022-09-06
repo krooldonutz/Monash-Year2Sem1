@@ -66,17 +66,16 @@ function main() {
     interface IBody{
       positionX: number
       positionY: number
-      //id: String
+      id: String
     }
     type Body = Readonly<IBody>
     
 
     type State = Readonly<{
       frog:Body,
-      oneCar: Body
-      car1:ReadonlyArray<Body>
-      car2:ReadonlyArray<Body>
-      car3:ReadonlyArray<Body>
+      lane1:ReadonlyArray<Body>
+      lane2:ReadonlyArray<Body>
+      lane3:ReadonlyArray<Body>
       // log:ReadonlyArray<Body>,
       //exit:ReadonlyArray<Body>,
       objCount:number
@@ -84,12 +83,12 @@ function main() {
     }>
 
    
-
+    
     function createCarAux(x: number, y: number):Body{
       return{
-          //id: "kontol",
           positionX: x,
-          positionY: y
+          positionY: y,
+          id: String(x + y)
       }
     }
     
@@ -97,7 +96,7 @@ function main() {
 
     function createFrog():Body {
       return{
-        //id: "ship",
+        id: "frog",
         // viewType: "frog",
         positionX: 400,
         positionY: 800,
@@ -106,27 +105,35 @@ function main() {
     }
     const initialState: State ={
       frog: createFrog(),
-      oneCar: createCarAux(0,725),
-      car1: [createCarAux(0, 725)],
-      car2: [createCarAux(0, 600), createCarAux(-100, 600)],
-      car3: [createCarAux(0, 500), createCarAux(-200, 500)],
+      lane1: [createCarAux(0, 725)],
+      lane2: [createCarAux(0, 600), createCarAux(-100, 600)],
+      lane3: [createCarAux(0, 500), createCarAux(-200, 500)],
       objCount: 0
     }
 
     const moveCar = (c: Body) => {
+      if (c.positionX == 900){
+        return {...c,
+          id: c.id,
+          positionX: 0,
+          positionY: c.positionY
+        }
+      }
       return {...c,
-        positionX: c.positionX + 1
+        id: c.id,
+        positionX: c.positionX + 1,
+        positionY: c.positionY
       }
     }
 
     const tick =(s: State) => {
-      
+      s.lane1.map(moveCar)
+      s.lane2.forEach(moveCar)
+      s.lane3.forEach(moveCar)
       return {...s,
-        oneCar: {
-          positionX: s.oneCar.positionX + 0.5,
-          positionY: s.oneCar.positionY
-        },
-        
+        lane1 : s.lane1.map(moveCar),
+        lane2 : s.lane2.map(moveCar),
+        lane3: s.lane3.map(moveCar)   
     }
     }
 
@@ -156,6 +163,7 @@ function main() {
           {y = e.directionY + s.frog.positionY}
         return {...s,
         frog: {
+          id: "frog",
           positionX: x,
           positionY: y
         }
@@ -187,21 +195,24 @@ function main() {
       const updateBodyView = (b: Body) => {
         function createBodyView(){
           const car = document.createElementNS(svg.namespaceURI, "rect")!;
-          car.setAttribute("id", "kontol")
+          car.setAttribute("id", String(b.id))
           car.setAttribute("width", "100")
           car.setAttribute("height", "50")
           car.setAttribute("x", String(b.positionX))
-          console.log(b.positionY)
           car.setAttribute("y", String(b.positionY))
           svg.appendChild(car)
           return car
         }
-        const car = document.getElementById("kontol") || createBodyView()
+        console.log(b.positionX)
+        const car = document.getElementById(String(b.id)) || createBodyView()
         car.setAttribute("x", String(b.positionX))
         car.setAttribute("y", String(b.positionY))
       }
       
-      updateBodyView(s.oneCar)
+      //updateBodyView(s.oneCar)
+      s.lane1.forEach(updateBodyView)
+      s.lane2.forEach(updateBodyView)
+      s.lane3.forEach(updateBodyView)
     }
     
     }
