@@ -105,9 +105,9 @@ function main() {
     }
     const initialState: State ={
       frog: createFrog(),
-      lane1: [createCarAux(0, 725)],
-      lane2: [createCarAux(0, 600), createCarAux(-100, 600)],
-      lane3: [createCarAux(0, 500), createCarAux(-200, 500)],
+      lane1: [createCarAux(700, 710), createCarAux(-200,710)],
+      lane2: [createCarAux(500, 600), createCarAux(200, 600), createCarAux(-400, 600)],
+      lane3: [createCarAux(800, 500), createCarAux(300, 500), createCarAux(-100, 500)],
       objCount: 0
     }
 
@@ -189,7 +189,7 @@ function main() {
       svg = document.getElementById("svgCanvas")!,
       frog = document.getElementById("frog")!
       
-      //console.log(s.frog.positionX, s.frog.positionY)
+      console.log(s.frog.positionX, s.frog.positionY)
       frog.setAttribute("x", String(s.frog.positionX) )
       frog.setAttribute("y", String(s.frog.positionY))
       const updateBodyView = (b: Body) => {
@@ -203,7 +203,7 @@ function main() {
           svg.appendChild(car)
           return car
         }
-        console.log(b.positionX)
+        //console.log(b.positionX)
         const car = document.getElementById(String(b.id)) || createBodyView()
         car.setAttribute("x", String(b.positionX))
         car.setAttribute("y", String(b.positionY))
