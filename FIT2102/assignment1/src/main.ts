@@ -1,6 +1,6 @@
 import "./style.css";
-import { fromEvent, interval, pipe,merge } from 'rxjs'; 
-import { map, filter, scan, reduce } from 'rxjs/operators';
+import { fromEvent, interval, merge} from 'rxjs'; 
+import { filter, scan,  map } from 'rxjs/operators';
 
 
 type Key = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' |"ArrowDown"| "w" | "a" | "s" | "d"
@@ -28,22 +28,23 @@ function main() {
 
   const
     Constants = {
-      CanvasSize: 900
+      CanvasSize: 900,
+      
     } as const
     type ViewType = 'car' | 'frog' | 'log'
 
-    class Direction {
-      directionX: number
-      directionY: number
-      constructor(directionX:number, directionY: number){
-        this.directionX = directionX
-        this.directionY = directionY
-      }
-}
-    
+//     class Direction {
+//       directionX: number
+//       directionY: number
+//       constructor(directionX:number, directionY: number){
+//         this.directionX = directionX
+//         this.directionY = directionY
+//       }
+// }
+  class Direction{constructor(public readonly directionX: number, public readonly directionY: number) {}}
+    class Tick { constructor(public readonly elapsed:number) {} } 
 
-      const 
-    
+      const  
     keyObservable = <T>(e:Event, k:Key, result:()=>T)=>
       fromEvent<KeyboardEvent>(document,e)
         .pipe(
@@ -65,41 +66,38 @@ function main() {
     interface IBody{
       positionX: number
       positionY: number
+      //id: String
     }
     type Body = Readonly<IBody>
+    
 
     type State = Readonly<{
       frog:Body,
-      car:ReadonlyArray<Body>
+      oneCar: Body
+      car1:ReadonlyArray<Body>
+      car2:ReadonlyArray<Body>
+      car3:ReadonlyArray<Body>
       // log:ReadonlyArray<Body>,
       //exit:ReadonlyArray<Body>,
-      // objCount:number,
+      objCount:number
       // gameOver:boolean
     }>
 
-    function createCar(s:State, x: number, y: number): Body{
-      return {...s,
-          car: s.car.concat(createCarAux(x,y))
-
-      }
-    }
+   
 
     function createCarAux(x: number, y: number):Body{
       return{
+          //id: "kontol",
           positionX: x,
           positionY: y
       }
     }
     
-    function moveCar(speed: number, car: Body){
-      return {...car,
-        positionX: car.positionX + 100
-      }
-    }
+    
 
     function createFrog():Body {
       return{
-        // id: "ship",
+        //id: "ship",
         // viewType: "frog",
         positionX: 400,
         positionY: 800,
@@ -108,11 +106,37 @@ function main() {
     }
     const initialState: State ={
       frog: createFrog(),
-      car: []
+      oneCar: createCarAux(0,725),
+      car1: [createCarAux(0, 725)],
+      car2: [createCarAux(0, 600), createCarAux(-100, 600)],
+      car3: [createCarAux(0, 500), createCarAux(-200, 500)],
+      objCount: 0
     }
-    const reduceState = (s: State, e: Direction) => {
+
+    const moveCar = (c: Body) => {
+      return {...c,
+        positionX: c.positionX + 1
+      }
+    }
+
+    const tick =(s: State) => {
+      return {...s,
+        oneCar: {
+          positionX: s.oneCar.positionX + 0.5,
+          positionY: s.oneCar.positionY
+        }
+    }
+    }
+
+
+    const reduceState = (s: State, e: Direction | any) => {
+      
       if (e instanceof Direction){
         return changeFrogPos(s,e)
+      }
+      
+      else{
+        return tick(s)
       }
     }
     const changeFrogPos =(s: State, e: Direction ) => {
@@ -135,26 +159,49 @@ function main() {
         }
     }}
     
+    
+   const gameClock = interval(10).pipe(
+      map(elapsed => elapsed)
+   )
+      merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,moveDownS$,
+        moveUpW$,moveLeftA$,moveRightD$, gameClock).pipe(
+          scan(reduceState, initialState)
+        ).subscribe(updateView)
+        
+        
+    
+
+    
+      
 
     function updateView(s: State){
       const
       svg = document.getElementById("svgCanvas")!,
       frog = document.getElementById("frog")!
       
-      console.log(s.frog.positionX, s.frog.positionY)
+      //console.log(s.frog.positionX, s.frog.positionY)
       frog.setAttribute("x", String(s.frog.positionX) )
       frog.setAttribute("y", String(s.frog.positionY))
+      const updateBodyView = (b: Body) => {
+        function createBodyView(){
+          const car = document.createElementNS(svg.namespaceURI, "rect")!;
+          car.setAttribute("id", "kontol")
+          car.setAttribute("width", "100")
+          car.setAttribute("height", "50")
+          car.setAttribute("x", String(b.positionX))
+          console.log(b.positionY)
+          car.setAttribute("y", String(b.positionY))
+          svg.appendChild(car)
+          return car
+        }
+        const car = document.getElementById("kontol") || createBodyView()
+        car.setAttribute("x", String(b.positionX))
+        car.setAttribute("y", String(b.positionY))
+      }
       
-      
+      updateBodyView(s.oneCar)
     }
     
-    
-    merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,moveDownS$,
-          moveUpW$,moveLeftA$,moveRightD$)
-          .pipe(
-            scan(reduceState, initialState)
-            )
-          .subscribe(updateView)
     }
 
 
