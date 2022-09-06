@@ -28,19 +28,10 @@ function main() {
 
   const
     Constants = {
-      CanvasSize: 900,
-      
+      CanvasSize: 900, 
     } as const
-    type ViewType = 'car' | 'frog' | 'log'
 
-//     class Direction {
-//       directionX: number
-//       directionY: number
-//       constructor(directionX:number, directionY: number){
-//         this.directionX = directionX
-//         this.directionY = directionY
-//       }
-// }
+
   class Direction{constructor(public readonly directionX: number, public readonly directionY: number) {}}
     class Tick { constructor(public readonly elapsed:number) {} } 
 
@@ -64,6 +55,8 @@ function main() {
           
     
     interface IBody{
+      width: number
+      height: number
       positionX: number
       positionY: number
       id: String
@@ -76,28 +69,42 @@ function main() {
       lane1:ReadonlyArray<Body>
       lane2:ReadonlyArray<Body>
       lane3:ReadonlyArray<Body>
-      // log:ReadonlyArray<Body>,
+      logLane1:ReadonlyArray<Body>
+      logLane2:ReadonlyArray<Body>
+      logLane3:ReadonlyArray<Body>
       //exit:ReadonlyArray<Body>,
       objCount:number
-      // gameOver:boolean
+      gameOver:boolean
     }>
 
    
     
-    function createCarAux(x: number, y: number):Body{
+    function createCar(x: number, y: number):Body{
       return{
+          height: 100,
+          width: 100,
           positionX: x,
           positionY: y,
-          id: String(x + y)
+          id: String(x + y) +" = Car"
       }
     }
     
+    function createLog(x: number, y: number): Body{
+      return{
+        height: 100,
+        width: 200,
+        positionX: x,
+        positionY: y,
+        id: String(x + y)+" = Log"
+    }
+    }
     
 
     function createFrog():Body {
       return{
+        height: 100,
+          width: 100,
         id: "frog",
-        // viewType: "frog",
         positionX: 400,
         positionY: 800,
         
@@ -105,36 +112,65 @@ function main() {
     }
     const initialState: State ={
       frog: createFrog(),
-      lane1: [createCarAux(700, 710), createCarAux(-200,710)],
-      lane2: [createCarAux(500, 600), createCarAux(200, 600), createCarAux(-400, 600)],
-      lane3: [createCarAux(800, 500), createCarAux(300, 500), createCarAux(-100, 500)],
-      objCount: 0
+      lane1: [createCar(700, 700), createCar(-200,700)],
+      lane2: [createCar(500, 600), createCar(100, 600), createCar(-400, 600)],
+      lane3: [createCar(800, 500), createCar(300, 500), createCar(-100, 500)],
+      logLane1: [createLog(100, 300)],
+      logLane2: [],
+      logLane3: [],
+      objCount: 0,
+      gameOver: false
     }
 
     const moveCar = (c: Body) => {
       if (c.positionX == 900){
         return {...c,
+          height: 100,
+          width: 100,
           id: c.id,
           positionX: 0,
           positionY: c.positionY
         }
       }
       return {...c,
+        height: 100,
+          width: 100,
         id: c.id,
         positionX: c.positionX + 1,
         positionY: c.positionY
       }
     }
 
-    const tick =(s: State) => {
-      s.lane1.map(moveCar)
-      s.lane2.forEach(moveCar)
-      s.lane3.forEach(moveCar)
-      return {...s,
-        lane1 : s.lane1.map(moveCar),
-        lane2 : s.lane2.map(moveCar),
-        lane3: s.lane3.map(moveCar)   
+    const handleCollissions = (s: State) => {
+      const 
+      bodiesCollided = ([frog,b]:[Body,Body]) => 
+      {
+        if (frog.positionX < b.positionX + b.width &&
+          frog.positionX + frog.width > b.positionX &&
+           frog.positionY < b.positionY+ b.height &&
+           frog.positionY + frog.height > b.positionY){
+            console.log(b.id)
+            return true
+           }
+      }
+                          ,
+      frogCollided1 = s.lane1.filter(r => bodiesCollided([s.frog, r])). length > 0,
+      frogCollided2 = s.lane2.filter(r => bodiesCollided([s.frog, r])). length > 0,
+      frogCollided3 = s.lane3.filter(r => bodiesCollided([s.frog, r])). length > 0,
+      frogCollidedFinal = frogCollided1 || frogCollided2 || frogCollided3
+
+      return{
+        ...s,
+        gameOver: frogCollidedFinal
+      }
     }
+    
+    const tick =(s: State) => {
+     return handleCollissions({...s,
+      lane1 : s.lane1.map(moveCar),
+      lane2 : s.lane2.map(moveCar),
+      lane3: s.lane3.map(moveCar)   
+  })
     }
 
 
@@ -163,6 +199,8 @@ function main() {
           {y = e.directionY + s.frog.positionY}
         return {...s,
         frog: {
+          height: 100,
+          width: 100,
           id: "frog",
           positionX: x,
           positionY: y
@@ -173,15 +211,11 @@ function main() {
    const gameClock = interval(10).pipe(
       map(elapsed => elapsed)
    )
-      merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,moveDownS$,
+     const mainStream = merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,moveDownS$,
         moveUpW$,moveLeftA$,moveRightD$, gameClock).pipe(
           scan(reduceState, initialState)
         ).subscribe(updateView)
         
-        
-    
-
-    
       
 
     function updateView(s: State){
@@ -197,22 +231,34 @@ function main() {
           const car = document.createElementNS(svg.namespaceURI, "rect")!;
           car.setAttribute("id", String(b.id))
           car.setAttribute("width", "100")
-          car.setAttribute("height", "50")
+          car.setAttribute("height", "100")
           car.setAttribute("x", String(b.positionX))
           car.setAttribute("y", String(b.positionY))
           svg.appendChild(car)
           return car
         }
-        //console.log(b.positionX)
+        
         const car = document.getElementById(String(b.id)) || createBodyView()
         car.setAttribute("x", String(b.positionX))
         car.setAttribute("y", String(b.positionY))
       }
       
-      //updateBodyView(s.oneCar)
+     
       s.lane1.forEach(updateBodyView)
       s.lane2.forEach(updateBodyView)
       s.lane3.forEach(updateBodyView)
+
+      if (s.gameOver == true){
+        console.log("collision")
+        mainStream.unsubscribe();
+      const v = document.createElementNS(svg.namespaceURI, "text")!;
+     // attr(v,{x:Constants.CanvasSize/6,y:Constants.CanvasSize/2,class:"gameover"});
+      v.setAttribute("x", "250")
+      v.setAttribute("y", "400")
+      v.setAttribute("class", "gameover")
+      v.textContent = "Game Over";
+      svg.appendChild(v);
+      }
     }
     
     }
