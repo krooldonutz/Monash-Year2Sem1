@@ -120,11 +120,13 @@ function main() {
     }
 
     const tick =(s: State) => {
+      
       return {...s,
         oneCar: {
           positionX: s.oneCar.positionX + 0.5,
           positionY: s.oneCar.positionY
-        }
+        },
+        
     }
     }
 
