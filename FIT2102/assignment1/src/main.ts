@@ -29,6 +29,9 @@ function main() {
   const
     Constants = {
       CanvasSize: 900, 
+      highSpeed: 2,
+      lowSpeed: 0.5,
+      normalSpeed: 1
     } as const
 
 
@@ -54,6 +57,7 @@ function main() {
       //viewType: ViewType
       id: String
       direction: String
+      speed: number
     }
     type Body = Readonly<IBody>
     
@@ -73,25 +77,27 @@ function main() {
 
    
     
-    function createCar(x: number, y: number, direction: String):Body{
+    function createCar(x: number, y: number, direction: String, speed: number):Body{
       return{
           height: 100,
           width: 100,
           positionX: x,
           positionY: y,
           id: "Car = "+String(x + y),
-          direction: direction
+          direction: direction,
+          speed: speed
       }
     }
     
-    function createLog(x: number, y: number, direction: String): Body{
+    function createLog(x: number, y: number, direction: String, speed: number): Body{
       return{
         height: 100,
         width: 200,
         positionX: x,
         positionY: y,
         id: "Log = "+ String(x + y),
-        direction: direction
+        direction: direction,
+        speed: speed
     }
     }
     
@@ -103,22 +109,23 @@ function main() {
         id: "frog",
         positionX: 400,
         positionY: 800,
-        direction: "frog"
+        direction: "frog",
+        speed: 1
       }
     }
     const initialState: State ={
       frog: createFrog(),
-      lane1: [createCar(700, 700,"left"), createCar(-200,700,"left")],
-      lane2: [createCar(500, 600,"right"), createCar(100, 600,"right"), createCar(-400, 600, "right")],
-      lane3: [createCar(800, 500, "left"), createCar(300, 500, "left"), createCar(-100, 500, "left")],
-      logLane1: [createLog(100, 300, "left"), createLog(-100, 200, "right"), createLog(100, 100, "left")],
+      lane1: [createCar(700, 700,"left", Constants.lowSpeed), createCar(-200,700,"left", Constants.lowSpeed)],
+      lane2: [createCar(500, 600,"right",Constants.normalSpeed), createCar(100, 600,"right", Constants.normalSpeed), createCar(-400, 600, "right", Constants.normalSpeed)],
+      lane3: [createCar(800, 500, "left", Constants.highSpeed), createCar(300, 500, "left", Constants.highSpeed), createCar(-100, 500, "left", Constants.highSpeed)],
+      logLane1: [createLog(100, 300, "left",Constants.lowSpeed), createLog(-100, 200, "right", Constants.normalSpeed), createLog(100, 100, "left", Constants.highSpeed)],
       // logLane2: [],
       // logLane3: [],
       //objCount: 0,
       gameOver: false
     }
 
-    const moveCar = (c: Body) => {
+    const moveBody = (c: Body) => {
       let dir = 0
       if (c.direction == "left"){
         dir = -1
@@ -151,7 +158,7 @@ function main() {
         height: c.height,
           width: c.width,
         id: c.id,
-        positionX: c.positionX + 1 * dir,
+        positionX: c.positionX  + 1 * dir * c.speed,
         positionY: c.positionY
       }
     }
@@ -216,6 +223,7 @@ function main() {
         else if (logStand.at(0)?.direction == "right"){
           dir = 1
         }
+        const speed =logStand.at(0)?.speed
         return{
           ...s,
           logLane1: s.logLane1,
@@ -228,7 +236,7 @@ function main() {
             height: 100,
             width: 100,
             id: "frog",
-            positionX: s.frog.positionX + 1 * dir,
+            positionX: s.frog.positionX + 1 * dir * speed!,
             positionY: s.frog.positionY,
            
           }
@@ -238,10 +246,10 @@ function main() {
     
     const tick =(s: State) => {
      return handleCollissions({...s,
-      logLane1: s.logLane1.map(moveCar),
-      lane1 : s.lane1.map(moveCar),
-      lane2 : s.lane2.map(moveCar),
-      lane3: s.lane3.map(moveCar)   
+      logLane1: s.logLane1.map(moveBody),
+      lane1 : s.lane1.map(moveBody),
+      lane2 : s.lane2.map(moveBody),
+      lane3: s.lane3.map(moveBody)   
   })
     }
 
@@ -249,14 +257,20 @@ function main() {
     const reduceState = (s: State, e: Direction | any) => {
       
       if (e instanceof Direction){
-        return changeFrogPos(s,e)
+        return moveFrog(s,e)
       }
       
       else{
-        return tick(s)
+        try{
+          return tick(s)
+        }
+        catch(err){
+          console.log(err)
+        }
       }
     }
-    const changeFrogPos =(s: State, e: Direction ) => {
+    
+    const moveFrog =(s: State, e: Direction ) => {
       function roundNearest100(num: number) {
         return Math.round(num / 100) * 100;
       }
@@ -303,19 +317,25 @@ function main() {
       
       const updateBodyView = (b: Body) => {
         function createBodyView(){
-          const car = document.createElementNS(svg.namespaceURI, "rect")!;
-          car.setAttribute("id", String(b.id))
-          car.setAttribute("width", String(b.width))
-          car.setAttribute("height", String(b.height))
-          car.setAttribute("x", String(b.positionX))
-          car.setAttribute("y", String(b.positionY))
-          svg.appendChild(car)
-          return car
+          const obj = document.createElementNS(svg.namespaceURI, "rect")!;
+          if (b.id.slice(0,3) == "Car"){
+            obj.setAttribute("fill", "#FFFF00")
+          }
+          else if (b.id.slice(0,3) == "Log"){
+            obj.setAttribute("fill", "#725c42")
+          }
+          obj.setAttribute("id", String(b.id))
+          obj.setAttribute("width", String(b.width))
+          obj.setAttribute("height", String(b.height))
+          obj.setAttribute("x", String(b.positionX))
+          obj.setAttribute("y", String(b.positionY))
+          svg.appendChild(obj)
+          return obj
         }
         
-        const car = document.getElementById(String(b.id)) || createBodyView()
-        car.setAttribute("x", String(b.positionX))
-        car.setAttribute("y", String(b.positionY))
+        const obj = document.getElementById(String(b.id)) || createBodyView()
+        obj.setAttribute("x", String(b.positionX))
+        obj.setAttribute("y", String(b.positionY))
       }
       
       s.logLane1.forEach(updateBodyView)
