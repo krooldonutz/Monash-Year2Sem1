@@ -33,7 +33,6 @@ function main() {
 
 
   class Direction{constructor(public readonly directionX: number, public readonly directionY: number) {}}
-    class Tick { constructor(public readonly elapsed:number) {} } 
 
       const  
     keyObservable = <T>(e:Event, k:Key, result:()=>T)=>
@@ -45,21 +44,16 @@ function main() {
           moveLeftArrow$ = keyObservable('keydown','ArrowLeft' ,()=>new Direction(-100,0)),
           moveRightArrow$ = keyObservable('keydown','ArrowRight',()=>new Direction(100,0)),
           moveUpArrow$ = keyObservable('keydown','ArrowUp',()=> new Direction(0,-100)),
-          moveDownArrow$ = keyObservable('keydown','ArrowDown',()=>new Direction(0,100)),
-          moveLeftA$ = keyObservable('keydown','a' ,()=>new Direction(-100,0)),
-          moveRightD$ = keyObservable('keydown','d',()=>new Direction(100,0)),
-          moveUpW$ = keyObservable('keydown','w',()=> new Direction(0,-100)),
-          moveDownS$ = keyObservable('keydown','s',()=>new Direction(0,100))
-         
-
+          moveDownArrow$ = keyObservable('keydown','ArrowDown',()=>new Direction(0,100))
           
-    
     interface IBody{
       width: number
       height: number
       positionX: number
       positionY: number
+      //viewType: ViewType
       id: String
+      direction: String
     }
     type Body = Readonly<IBody>
     
@@ -70,32 +64,34 @@ function main() {
       lane2:ReadonlyArray<Body>
       lane3:ReadonlyArray<Body>
       logLane1:ReadonlyArray<Body>
-      logLane2:ReadonlyArray<Body>
-      logLane3:ReadonlyArray<Body>
+      // logLane2:ReadonlyArray<Body>
+      // logLane3:ReadonlyArray<Body>
       //exit:ReadonlyArray<Body>,
-      objCount:number
+      //objCount:number
       gameOver:boolean
     }>
 
    
     
-    function createCar(x: number, y: number):Body{
+    function createCar(x: number, y: number, direction: String):Body{
       return{
           height: 100,
           width: 100,
           positionX: x,
           positionY: y,
-          id: String(x + y) +" = Car"
+          id: "Car = "+String(x + y),
+          direction: direction
       }
     }
     
-    function createLog(x: number, y: number): Body{
+    function createLog(x: number, y: number, direction: String): Body{
       return{
         height: 100,
         width: 200,
         positionX: x,
         positionY: y,
-        id: String(x + y)+" = Log"
+        id: "Log = "+ String(x + y),
+        direction: direction
     }
     }
     
@@ -107,36 +103,55 @@ function main() {
         id: "frog",
         positionX: 400,
         positionY: 800,
-        
+        direction: "frog"
       }
     }
     const initialState: State ={
       frog: createFrog(),
-      lane1: [createCar(700, 700), createCar(-200,700)],
-      lane2: [createCar(500, 600), createCar(100, 600), createCar(-400, 600)],
-      lane3: [createCar(800, 500), createCar(300, 500), createCar(-100, 500)],
-      logLane1: [createLog(100, 300)],
-      logLane2: [],
-      logLane3: [],
-      objCount: 0,
+      lane1: [createCar(700, 700,"left"), createCar(-200,700,"left")],
+      lane2: [createCar(500, 600,"right"), createCar(100, 600,"right"), createCar(-400, 600, "right")],
+      lane3: [createCar(800, 500, "left"), createCar(300, 500, "left"), createCar(-100, 500, "left")],
+      logLane1: [createLog(100, 300, "left"), createLog(-100, 200, "right"), createLog(100, 100, "left")],
+      // logLane2: [],
+      // logLane3: [],
+      //objCount: 0,
       gameOver: false
     }
 
     const moveCar = (c: Body) => {
-      if (c.positionX == 900){
+      let dir = 0
+      if (c.direction == "left"){
+        dir = -1
+      }
+      else if (c.direction == "right"){
+        dir = 1
+      }
+      if (c.positionX == 900 && dir == 1){
         return {...c,
           height: 100,
           width: 100,
           id: c.id,
           positionX: 0,
           positionY: c.positionY
+          
+        }
+      }
+
+      if (c.positionX == -100 && dir == -1){
+        return {...c,
+          height: 100,
+          width: 100,
+          id: c.id,
+          positionX: 900,
+          positionY: c.positionY
+          
         }
       }
       return {...c,
-        height: 100,
-          width: 100,
+        height: c.height,
+          width: c.width,
         id: c.id,
-        positionX: c.positionX + 1,
+        positionX: c.positionX + 1 * dir,
         positionY: c.positionY
       }
     }
@@ -145,28 +160,85 @@ function main() {
       const 
       bodiesCollided = ([frog,b]:[Body,Body]) => 
       {
+        // if (b.width <= 100){
         if (frog.positionX < b.positionX + b.width &&
           frog.positionX + frog.width > b.positionX &&
            frog.positionY < b.positionY+ b.height &&
            frog.positionY + frog.height > b.positionY){
-            console.log(b.id)
+
             return true
            }
+          
+        // if (b.width >100){
+        //     if (frog.positionX < b.positionX + b.width &&
+        //       frog.positionX + frog.width > b.positionX &&
+        //        frog.positionY < b.positionY+ b.height &&
+        //        frog.positionY + frog.height > b.positionY){
+               
+        //         return true
+        //        }
+        //   }
+        
+
       }
                           ,
       frogCollided1 = s.lane1.filter(r => bodiesCollided([s.frog, r])). length > 0,
       frogCollided2 = s.lane2.filter(r => bodiesCollided([s.frog, r])). length > 0,
       frogCollided3 = s.lane3.filter(r => bodiesCollided([s.frog, r])). length > 0,
+      logStand = s.logLane1.filter(r => bodiesCollided([s.frog, r])),
       frogCollidedFinal = frogCollided1 || frogCollided2 || frogCollided3
+      
 
-      return{
+      if (s.frog.positionX == 801 || s.frog.positionX == -1){
+        return{
+          ...s,
+          gameOver: true
+        }
+      }
+      if (logStand.length <= 0){
+        if (s.frog.positionY >= 100 && s.frog.positionY <= 300){
+          return{
+            ...s,
+            gameOver: true
+          }
+        }
+      else return{
         ...s,
         gameOver: frogCollidedFinal
+      }}
+
+      else if (logStand.length >= 1){
+        console.log(logStand)
+        let dir = 0
+        if (logStand.at(0)?.direction == "left"){
+          dir = -1
+        }
+        else if (logStand.at(0)?.direction == "right"){
+          dir = 1
+        }
+        return{
+          ...s,
+          logLane1: s.logLane1,
+          lane1: s.lane1,
+          lane2: s.lane2,
+          lane3: s.lane3,
+          //objCount: s.objCount,
+          gameOver: s.gameOver,
+          frog: {
+            height: 100,
+            width: 100,
+            id: "frog",
+            positionX: s.frog.positionX + 1 * dir,
+            positionY: s.frog.positionY,
+           
+          }
+        }
       }
     }
     
     const tick =(s: State) => {
      return handleCollissions({...s,
+      logLane1: s.logLane1.map(moveCar),
       lane1 : s.lane1.map(moveCar),
       lane2 : s.lane2.map(moveCar),
       lane3: s.lane3.map(moveCar)   
@@ -185,9 +257,11 @@ function main() {
       }
     }
     const changeFrogPos =(s: State, e: Direction ) => {
-      
-      let x: number = s.frog.positionX
-      let y: number  = s.frog.positionY
+      function roundNearest100(num: number) {
+        return Math.round(num / 100) * 100;
+      }
+      let x: number = roundNearest100(s.frog.positionX)
+      let y: number  = roundNearest100(s.frog.positionY)
 
         if (e.directionX + s.frog.positionX <= 800 && e.directionX == 100)
           { x = e.directionX + s.frog.positionX}
@@ -203,7 +277,8 @@ function main() {
           width: 100,
           id: "frog",
           positionX: x,
-          positionY: y
+          positionY: y,
+         // viewtype: s.frog.viewType
         }
     }}
     
@@ -211,8 +286,7 @@ function main() {
    const gameClock = interval(10).pipe(
       map(elapsed => elapsed)
    )
-     const mainStream = merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,moveDownS$,
-        moveUpW$,moveLeftA$,moveRightD$, gameClock).pipe(
+     const mainStream = merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,gameClock).pipe(
           scan(reduceState, initialState)
         ).subscribe(updateView)
         
@@ -226,12 +300,13 @@ function main() {
       console.log(s.frog.positionX, s.frog.positionY)
       frog.setAttribute("x", String(s.frog.positionX) )
       frog.setAttribute("y", String(s.frog.positionY))
+      
       const updateBodyView = (b: Body) => {
         function createBodyView(){
           const car = document.createElementNS(svg.namespaceURI, "rect")!;
           car.setAttribute("id", String(b.id))
-          car.setAttribute("width", "100")
-          car.setAttribute("height", "100")
+          car.setAttribute("width", String(b.width))
+          car.setAttribute("height", String(b.height))
           car.setAttribute("x", String(b.positionX))
           car.setAttribute("y", String(b.positionY))
           svg.appendChild(car)
@@ -243,7 +318,8 @@ function main() {
         car.setAttribute("y", String(b.positionY))
       }
       
-     
+      s.logLane1.forEach(updateBodyView)
+      svg.appendChild(frog)
       s.lane1.forEach(updateBodyView)
       s.lane2.forEach(updateBodyView)
       s.lane3.forEach(updateBodyView)
