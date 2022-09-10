@@ -385,19 +385,7 @@ function main() {
       
       else if (e instanceof Reset){
        return {
-        ...s,
-        frog: createFrog(),
-      lane1: [createCar(700, 700,"left", Constants.lowSpeed), createCar(-200,700,"left", Constants.lowSpeed),
-      createCar(500, 600,"right",Constants.normalSpeed), createCar(100, 600,"right", Constants.normalSpeed), createCar(-400, 600, "right", Constants.normalSpeed),
-      createCar(800, 500, "left", Constants.highSpeed), createCar(300, 500, "left", Constants.highSpeed), createCar(-100, 500, "left", Constants.highSpeed)],
-      
-      logLane1: [createLog(100, 300, "left",Constants.lowSpeed), createLog(200, 300, "left",Constants.lowSpeed),
-                  createLog(-100, 200, "right", Constants.normalSpeed), createLog(100, 200, "right", Constants.normalSpeed), createLog(300, 200, "right", Constants.normalSpeed),
-                    createLog(100, 100, "left", Constants.highSpeed)],
-      score: 0,
-      gameOver: false,
-      destRect:  [100, 300,500,700],
-      deadRect: [0, 200, 400, 600]
+        ...initialState
        }
       }
       else{
