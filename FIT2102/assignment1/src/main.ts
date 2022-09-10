@@ -278,7 +278,7 @@ function main() {
       const carTemp = s.lane1.map(x => addSpeed(x, 2))
       const newLogSpeed = s.logLane1.map(x => addSpeed(x,2))
       if (s.destRect.includes(s.frog.positionX) && s.frog.positionY == 0){
-        console.log("WINNNNN")  
+        console.log("increase obstacle speeedd")  
         return{
           ...s,
           finishedFrogs: s.finishedFrogs.concat(s.frog),
@@ -300,7 +300,7 @@ function main() {
         }
       }
       else{
-        if (s.frog.positionX == 801 || s.frog.positionX == -1){
+        if (s.frog.positionX == 850 || s.frog.positionX == -51){
           return{
             ...s,
             gameOver: true
@@ -313,7 +313,7 @@ function main() {
               gameOver: true
             }
           }
-        else return{
+          else return{
           ...s,
           gameOver: frogCollided1
         }}
@@ -402,6 +402,7 @@ function main() {
             y = e.directionY + s.frog.positionY
             oneUp += 10
           }
+        
         return {...s,
           score: s.score + oneUp,
         frog: {
@@ -410,7 +411,7 @@ function main() {
           id: "frog",
           positionX: x,
           positionY: y,
-         // viewtype: s.frog.viewType
+          direction: 2
         }
     }}
     
@@ -421,7 +422,7 @@ function main() {
 
      /* Creating a stream of events that are being merged into one stream. */
      const mainStream = merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,gameClock).pipe(
-     //@ts-ignore
+     
           scan(reduceState, initialState)
         ).subscribe(updateView)
         
@@ -445,6 +446,10 @@ function main() {
        * @param {Body} b - Body - the body object that is being updated
        */
       const updateBodyView = (b: Body) => {
+        /**
+         * It creates a rectangle and appends it to the svg element
+         * @returns the object that was created.
+         */
         function createBodyView(){
           const obj = document.createElementNS(svg.namespaceURI, "rect")!;
           if (b.id.slice(0,3) == "Car"){
