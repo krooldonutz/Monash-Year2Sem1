@@ -3,7 +3,7 @@ import { fromEvent, interval, merge} from 'rxjs';
 import { filter, scan,  map } from 'rxjs/operators';
 
 
-type Key = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' |"ArrowDown"| "w" | "a" | "s" | "d"
+type Key = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' |"ArrowDown"| "w" | "a" | "s" | "d"| "Space"
 type Event = 'keydown' | 'keyup'
 
 function main() {
@@ -25,6 +25,8 @@ function main() {
  /* Direction is a class that has two properties, directionX and directionY, which are both numbers. */
   class Direction{constructor(public readonly directionX: number, public readonly directionY: number) {}}
 
+  class Reset{constructor(public readonly reset:boolean) {}}
+
       /**
        * `keyObservable` is a function that takes an event name, a key name, and a function that
        * returns a value, and returns an observable that emits that value when the event is triggered
@@ -43,7 +45,8 @@ function main() {
           moveLeftArrow$ = keyObservable('keydown','ArrowLeft' ,()=>new Direction(-100,0)),
           moveRightArrow$ = keyObservable('keydown','ArrowRight',()=>new Direction(100,0)),
           moveUpArrow$ = keyObservable('keydown','ArrowUp',()=> new Direction(0,-100)),
-          moveDownArrow$ = keyObservable('keydown','ArrowDown',()=>new Direction(0,100))
+          moveDownArrow$ = keyObservable('keydown','ArrowDown',()=>new Direction(0,100)),
+          spaceButton$ =keyObservable('keydown','Space',()=>new Reset(true))
           
     /* Defining an interface for the body object. */
     interface IBody{
@@ -57,14 +60,13 @@ function main() {
     }
     type Body = Readonly<IBody>
     
-
+    /* defining a type called State, that requires the State to have the following properties*/
     type State = Readonly<{
       frog:Body,
       lane1:ReadonlyArray<Body>
       logLane1:ReadonlyArray<Body>
       score: number,
       gameOver:boolean,
-      finishedFrogs: ReadonlyArray<Body>,
       destRect: ReadonlyArray<number>
       deadRect: ReadonlyArray<number>
     }>
@@ -180,7 +182,7 @@ function main() {
       }
     }
 
-    /* The code under is creating the initial state of the game. */
+    /* The code under is creating the initial state of the game.*/
     const initialState: State ={
       frog: createFrog(),
       lane1: [createCar(700, 700,"left", Constants.lowSpeed), createCar(-200,700,"left", Constants.lowSpeed),
@@ -192,14 +194,13 @@ function main() {
                     createLog(100, 100, "left", Constants.highSpeed)],
       score: 0,
       gameOver: false,
-      finishedFrogs: [],
       destRect:  [100, 300,500,700],
       deadRect: [0, 200, 400, 600]
     }
 
     /**
      * It takes a body and returns a new body with the same properties except for the positionX
-     * property, which is incremented by 1 * the direction * the speed
+     * property, which is incremented by (1 * the direction * the speed)
      * @param {Body} c - Body
      * @returns an object with the same properties as the original object, but with the positionX
      * property changed.
@@ -239,7 +240,7 @@ function main() {
     
     const handleCollissions = (s: State) => {
       /**
-       
+       it checks if either two objects have collided, by utilizing the "hitbox" around the objects that we have made
        * @param  - [Body,Body] - this is the type of the parameters that the function takes.
        * @returns A boolean value
        */
@@ -258,7 +259,13 @@ function main() {
            }
       }
                           ,
+      
+      /* It filters through every car that have collided with the frog,
+      if the list is filled with a car that has collided with the frog, then it will return true */
       frogCollided1 = s.lane1.filter(r => bodiesCollided([s.frog, r])). length > 0,
+      /**
+      it saves the logs that are currently being stood on by the frog
+      */
       logStand = s.logLane1.filter(r => bodiesCollided([s.frog, r]))
       
      /**
@@ -274,14 +281,16 @@ function main() {
           speed: b.speed + mult
         }
     }
-
-      const carTemp = s.lane1.map(x => addSpeed(x, 2))
-      const newLogSpeed = s.logLane1.map(x => addSpeed(x,2))
+      /* Checking if the frog is on the set x coordinates in Constants where it will win */
       if (s.destRect.includes(s.frog.positionX) && s.frog.positionY == 0){
-        console.log("increase obstacle speeedd")  
+        /* Adding 2 to the speed of the car and the log everytime the goal is reached. */
+        const carTemp = s.lane1.map(x => addSpeed(x, 2))
+        const newLogSpeed = s.logLane1.map(x => addSpeed(x,2))
+        
+        /* The code under is updating the state of the game to reset the frog's position and 
+        increasing the speed of the objects. */
         return{
           ...s,
-          finishedFrogs: s.finishedFrogs.concat(s.frog),
           gameOver: false,
           frog:{
             ...s.frog,
@@ -293,6 +302,7 @@ function main() {
           logLane1: newLogSpeed
         }
       }
+      /* Checking if the frog is on the set x coordinates in Constants where it will die */
       else if(s.deadRect.includes(s.frog.positionX) && s.frog.positionY == 0){
         return{
           ...s,
@@ -300,13 +310,16 @@ function main() {
         }
       }
       else{
-        if (s.frog.positionX == 850 || s.frog.positionX == -51){
+        /* game over if the frog is found out bounds */
+        if (s.frog.positionX >= 850 || s.frog.positionX <= -51){
           return{
             ...s,
             gameOver: true
           }
         }
+        /* checking if the frog is standing on a log */
         if (logStand.length <= 0){
+          /* the game will be over if the frog is not on a log and in the river are */
           if (s.frog.positionY >= 100 && s.frog.positionY <= 300){
             return{
               ...s,
@@ -317,9 +330,10 @@ function main() {
           ...s,
           gameOver: frogCollided1
         }}
-  
+        
+        /* The code under is checking if the frog is on a log. If it is, it will move the frog in the
+        direction of the log with the same speed of the log. */
         else if (logStand.length >= 1){
-          //console.log(logStand)
           const dir = logStand.at(0)?.direction
           
           const speed =logStand.at(0)?.speed
@@ -335,25 +349,25 @@ function main() {
             }
           }
         }
-        else{
-          return s
-        }
-      }
-    }
-    
+        else return{
+          ...s,
+          gameOver: frogCollided1}
+      }}
+        
+       
     /**
      * It takes a state, and returns a new state where the logLane1 and lane1 arrays have been mapped
      * over with the moveBody function
      * @param {State} s - State
      * @returns The return value is a new state object with the logLane1 and lane1 arrays mapped to the
-     * moveBody function.
+     * moveBody function which in turn moves the x-axis position 
+     * of the object while simultaneously checking for collisions.
      */
     const tick =(s: State) => {
      return  handleCollissions({...s,
       logLane1: s.logLane1.map(moveBody),
       lane1 : s.lane1.map(moveBody)
   })
-
     }
 
 
@@ -363,12 +377,29 @@ function main() {
      * @param {Direction | Tick} e - Direction | Tick
      * @returns The new state of the game.
      */
-    const reduceState = (s: State, e: Direction | Tick) => {
+    const reduceState = (s: State, e: Direction | Tick | Reset) => {
       
       if (e instanceof Direction){
         return moveFrog(s,e)
       }
       
+      else if (e instanceof Reset){
+       return {
+        ...s,
+        frog: createFrog(),
+      lane1: [createCar(700, 700,"left", Constants.lowSpeed), createCar(-200,700,"left", Constants.lowSpeed),
+      createCar(500, 600,"right",Constants.normalSpeed), createCar(100, 600,"right", Constants.normalSpeed), createCar(-400, 600, "right", Constants.normalSpeed),
+      createCar(800, 500, "left", Constants.highSpeed), createCar(300, 500, "left", Constants.highSpeed), createCar(-100, 500, "left", Constants.highSpeed)],
+      
+      logLane1: [createLog(100, 300, "left",Constants.lowSpeed), createLog(200, 300, "left",Constants.lowSpeed),
+                  createLog(-100, 200, "right", Constants.normalSpeed), createLog(100, 200, "right", Constants.normalSpeed), createLog(300, 200, "right", Constants.normalSpeed),
+                    createLog(100, 100, "left", Constants.highSpeed)],
+      score: 0,
+      gameOver: false,
+      destRect:  [100, 300,500,700],
+      deadRect: [0, 200, 400, 600]
+       }
+      }
       else{
         return tick(s)
       }
@@ -421,8 +452,8 @@ function main() {
       .pipe(map(elapsed=>new Tick(elapsed)))
 
      /* Creating a stream of events that are being merged into one stream. */
-     const mainStream = merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,gameClock).pipe(
-     
+     const mainStream = merge(moveUpArrow$,moveDownArrow$,moveLeftArrow$,moveRightArrow$,gameClock, spaceButton$).pipe(
+     //@ts-ignore
           scan(reduceState, initialState)
         ).subscribe(updateView)
         
@@ -495,15 +526,12 @@ function main() {
 
 
       s.logLane1.forEach(updateBodyView)
-      //console.log(frog.getAttribute("x"), frog.getAttribute("y"))
       svg.appendChild(frog)
       s.lane1.forEach(updateBodyView)
-      
-      s.finishedFrogs.forEach(updateDestRect)
-
       if (s.gameOver == true){
         console.log("collision")
         mainStream.unsubscribe();
+        
       const v = document.createElementNS(svg.namespaceURI, "text")!;
      
       v.setAttribute("x", "250")
@@ -514,8 +542,25 @@ function main() {
       }
       
     }
-    
+    function showKeys() {
+      function showKey(k:Key) {
+        const arrowKey = document.getElementById(k)!,
+          o = (e:Event) => fromEvent<KeyboardEvent>(document,e).pipe(
+            filter(({code})=>code === k))
+        o('keydown').subscribe(e => arrowKey.classList.add("highlight"))
+        o('keyup').subscribe(_=>arrowKey.classList.remove("highlight"))
+      }
+      showKey('ArrowLeft');
+      showKey('ArrowRight');
+      showKey('ArrowUp');
+      showKey('ArrowDown');
+      showKey('Space');
     }
+    
+    setTimeout(showKeys, 0)
+  }
+    
+    
 
 
 // The following simply runs your main function on window load.  Make sure to leave it in place.

@@ -6,6 +6,10 @@
     font-size:80px;
     fill:red;
   }
+  .highlight {
+    background-color:pink;
+  }
+  p{text-align: left; padding-left: 50%;}
     </style>
     <title>FIT2102 A1 2022</title>
   </head>
@@ -13,7 +17,7 @@
     <h1>Frogger</h1>
     
 
-    <svg id="svgCanvas" width="900" height="900">
+    <svg id="svgCanvas" width="900" height="900" style="float: left">
 
       
       
@@ -38,7 +42,7 @@
 
       
       
-      <text id="score" x="0" y="800" fill="red" width ="1000" height ="1000"></text>
+      <text id="score" x="0" y="850" fill="red" width ="1000" height ="1000" font-size="2em"></text>
 
     
 
@@ -141,6 +145,27 @@
 </g>
 </svg>
 </svg>
-    
+<p style="font-size: 150%;">Use the arrow keys to move
+  <br> Avoid the cars and use the logs to your advantage!
+  <br> Don't stay too long on the river though or you might go out of bounds!<br>
+Reach the final destinations but don't land on the spikes!
+<br>
+<br>The objects will become faster everytime you land on the finish zone
+<br>
+<br> This game doesn't have an end, so reach that high score!
+<br>
+<br> Good Luck!
+<br>
+<br> Please freely zoom in or out your browser to fit your display properly!
+</p>
+
+<div id="controls"></div>
+<table>
+  <tr><td>Go Left</td><td><div id="ArrowLeft" class="key">&#8678;</div></td></tr>
+  <tr><td>Go Right</td><td><div id="ArrowRight" class="key">&#8680;</div></td></tr>
+  <tr><td>Go Up</td><td><div id="ArrowUp" class="key">&#8679;</div></td></tr>
+  <tr><td>Go Down</td><td><div id="ArrowDown" class="key">&#8681</div></td></tr>
+  <tr><td>Reset Game</td><td><div id="Space" class="key" style="width:50px">Space</div></td></tr>
+</table>    
   </body>
 </html>
