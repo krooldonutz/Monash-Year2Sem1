@@ -8,6 +8,8 @@ type Event = 'keydown' | 'keyup'
 
 function main() {
 
+  /* Creating a constant object with the properties of CanvasSize, highSpeed, lowSpeed, and
+  normalSpeed (to determine the initial speeds of an object). */
   const
     Constants = {
       CanvasSize: 900, 
