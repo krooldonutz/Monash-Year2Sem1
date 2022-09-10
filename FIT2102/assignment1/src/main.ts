@@ -25,6 +25,7 @@ function main() {
  /* Direction is a class that has two properties, directionX and directionY, which are both numbers. */
   class Direction{constructor(public readonly directionX: number, public readonly directionY: number) {}}
 
+  /* Reset is a class that has a readonly property called reset that is a boolean that. */
   class Reset{constructor(public readonly reset:boolean) {}}
 
       /**
@@ -216,7 +217,6 @@ function main() {
           
         }
       }
-
       if (c.positionX <= -100 && dir == -1){
         return {...c,
           height: 100,
@@ -387,8 +387,11 @@ function main() {
         ...initialState
        }
       }
-      else{
+      else if (e instanceof Tick){
         return tick(s)
+      }
+      else{
+        console.log("undefined")
       }
     }
     
@@ -535,10 +538,6 @@ function main() {
     
     setTimeout(showKeys, 0)
   }
-    
-    
-
-
 // The following simply runs your main function on window load.  Make sure to leave it in place.
 if (typeof window !== "undefined") {
   window.onload = () => {
