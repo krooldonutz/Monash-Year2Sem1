@@ -150,7 +150,6 @@ function main() {
           speed: speed
       }
       }
-
       return{
         height: 100,
         width: 200,
@@ -177,7 +176,7 @@ function main() {
         id: "frog",
         positionX: 400,
         positionY: 800,
-        direction: 1,
+        direction: 0,
         speed: 1
       }
     }
@@ -395,15 +394,24 @@ function main() {
     
     /**
      * The function takes in a state and a direction, and returns a new state with the frog's position
-     * updated based on the direction
+     * updated based on the direction.
+     * And it also ensures the player won't move the frog out of bounds manually
      * @param {State} s - State
      * @param {Direction} e - Direction
      * @returns a new state with the frog's position updated.
      */
     const moveFrog =(s: State, e: Direction ) => {
+      /**
+       * RoundNearest100 takes a number and returns a number.
+       * @param {number} num - The number to round.
+       * @returns the rounded number.
+       */
       function roundNearest100(num: number) {
         return Math.round(num / 100) * 100;
       }
+      /**
+       this ensures that the frog's x-axis and y-axis coordinates will always be on intervals of 100
+       */
       let x: number = roundNearest100(s.frog.positionX)
       let y: number  = roundNearest100(s.frog.positionY)
       let oneUp: number = 0
@@ -430,7 +438,7 @@ function main() {
           id: "frog",
           positionX: x,
           positionY: y,
-          direction: 2
+          direction: s.frog.direction
         }
     }}
     
@@ -466,7 +474,8 @@ function main() {
        */
       const updateBodyView = (b: Body) => {
         /**
-         * It creates a rectangle and appends it to the svg element
+         * It creates a rectangle and appends it to the svg element,
+         * it also checks what type of object it is to make sure it fills the color properly
          * @returns the object that was created.
          */
         function createBodyView(){
@@ -477,12 +486,6 @@ function main() {
           }
           else if (b.id.slice(0,3) == "Log"){
             obj.setAttribute("fill", "#725c42")
-            obj.setAttribute("id", String(b.id))
-          }
-          else if(b.id == "frog"){
-            obj.setAttribute("fill", "#725c42")
-            obj.setAttribute("rx", "60")
-            obj.setAttribute("ry", "60")
             obj.setAttribute("id", String(b.id))
           }
           
@@ -498,21 +501,6 @@ function main() {
         obj.setAttribute("x", String(b.positionX))
         obj.setAttribute("y", String(b.positionY))
       }
-      
-      function updateDestRect(b: Body){
-        const svg = document.getElementById("svgCanvas")!
-        if (b.positionX == 500){
-          const obj = document.getElementById("destRect3")!;
-          obj.setAttribute("x", String(b.positionX))
-          obj.setAttribute("y", String(b.positionY))
-          obj.setAttribute("width", String(b.width))
-          obj.setAttribute("height", String(b.height))
-          obj.setAttribute("fill", "#009618")
-          svg.appendChild(obj)
-        }
-      }
-
-
       s.logLane1.forEach(updateBodyView)
       svg.appendChild(frog)
       s.lane1.forEach(updateBodyView)
