@@ -23,7 +23,6 @@ function main() {
   tick. */
   class Tick { constructor(public readonly elapsed:number) {} }
 
-
  /* Direction is a class that has two properties, directionX and directionY, which are both numbers. */
   class Direction{constructor(public readonly directionX: number, public readonly directionY: number) {}}
 
@@ -153,7 +152,7 @@ function main() {
           speed: speed
       }
       }
-      return{
+      else return{
         height: 100,
         width: 200,
         positionX: x,
@@ -216,7 +215,6 @@ function main() {
           id: c.id,
           positionX: 0,
           positionY: c.positionY
-          
         }
       }
       if (c.positionX <= -100 && dir == -1){
@@ -229,7 +227,7 @@ function main() {
           
         }
       }
-      return {...c,
+      else return {...c,
         height: c.height,
           width: c.width,
         id: c.id,
@@ -506,9 +504,13 @@ function main() {
         obj.setAttribute("x", String(b.positionX))
         obj.setAttribute("y", String(b.positionY))
       }
+
+    /* Updating the view of the game. */
       s.logLane1.forEach(updateBodyView)
       svg.appendChild(frog)
       s.lane1.forEach(updateBodyView)
+
+      
       if (s.gameOver == true){
         console.log("collision")
         mainStream.unsubscribe();
@@ -523,6 +525,9 @@ function main() {
       }
       
     }
+    /**
+     * > It highlights the arrow keys and space bar when they are pressed
+     */
     function showKeys() {
       function showKey(k:Key) {
         const arrowKey = document.getElementById(k)!,
