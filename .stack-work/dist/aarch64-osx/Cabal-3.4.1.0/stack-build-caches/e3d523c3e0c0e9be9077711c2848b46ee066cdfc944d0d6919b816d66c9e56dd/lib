@@ -1,0 +1,22 @@
+? /Users/malcolmpaltiraja/.stack/programs/aarch64-osx/ghc-9.0.2/lib/ghc-9.0.2/lib/aarch64-osx-ghc-9.0.2/rts-1.0.2/include/ghcversion.h
+: hash: 3b6c0f16983344ce12525816947d892da98bc96f17a664531494f515b9356c81
+? /Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/.stack-work/dist/aarch64-osx/Cabal-3.4.1.0/build/autogen/Paths_2022Assignment2.hs
+: hash: c24e99beda8f30a9cb60c5da7d8511eefdfe6921eb5d9e13f9f2d504a3b03a54
+? /Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/.stack-work/dist/aarch64-osx/Cabal-3.4.1.0/build/autogen/cabal_macros.h
+: hash: ce16e7a40323767fd3b87ecc9c8548b4e9b3ed5a9391ec42f83503da8f99e05f
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/2022Assignment2.cabal:
+  hash: 039782a6dd1cb9bc6813e9b4894897ad0c9dba1ec1e21a0d0b656968073ebd69
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/CHANGELOG.md:
+  hash: 1560417c0c1d950b2b4c0c79bff5a315e9514dc1f4f19d5a3f5266c34313985a
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/README.md:
+  hash: 353d70acb0f369e4b85b984db70b55cd6e9686fc3061dd78205b96269c10053c
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/package.yaml:
+  hash: 9882553360189d0dcced87958b3596801f273ed26814fce72944104bb0e9e16b
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/src/Data/Builder.hs:
+  hash: 2835ac6e673dbf6a726bddffde482178780563e725c9defc20cd944488b794f4
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/src/Data/Lambda.hs:
+  hash: 162b5d2c0d72331e5329452589d7368ab3482d2c63ed976b9cde3d8b96ca490c
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/src/Parser.hs:
+  hash: 589c28ded9fde2ce4b4f2268ff5bb180cce606e34fbf916af9973225c59acbff
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/submission/LambdaParser.hs:
+  hash: fc3a3c83545181605e2b070b839ddd92e62b91325a6c12aa9774ac138b711428
