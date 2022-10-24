@@ -91,22 +91,31 @@ short = do
     is 'λ' 
     uno <- munch1 isLetter
     is '.'
-    result <- shortDos ||| short ||| lettersBracket ||| letters ||| shortAux
+    result <- shortAux ||| lettersBracket ||| letters
     lamVar <- pure $ fmap (lam) (uno) 
     ret <- pure $ foldl1 (.) lamVar $ result
     return ret
 
-shortDos :: Parser Builder
-shortDos = do
+short1aux :: Parser Builder
+short1aux = do
     string "("
     is 'λ' 
     uno <- munch1 isLetter
     is '.'
-    result <- short
+    result <- munch1 isLetter
     string ")"
-    lamVar <- pure $ fmap (lam) (uno) 
+    lamVar <- pure $ fmap (lam) (uno)
+    termRet <- pure $ fmap term b
     ret <- pure $ foldl1 (.) lamVar $ result
     return ret
+
+short1 :: Parser Builder
+short1 = do
+        string "("
+        x <- short
+        string ")"
+        y <- short1aux ||| short1
+        return $ x `ap` y
 
 shortLambdaP :: Parser Lambda
 shortLambdaP = do
