@@ -1,0 +1,20 @@
+? /Users/malcolmpaltiraja/.stack/programs/aarch64-osx/ghc-9.0.2/lib/ghc-9.0.2/lib/aarch64-osx-ghc-9.0.2/rts-1.0.2/include/ghcversion.h
+: hash: 3b6c0f16983344ce12525816947d892da98bc96f17a664531494f515b9356c81
+? /Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/.stack-work/dist/aarch64-osx/Cabal-3.4.1.0/build/autogen/Paths_tute6.hs
+: hash: 279f4822231b791eab06035da73b8980cf34709e4662505b1f1a7952d81bbad7
+? /Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/.stack-work/dist/aarch64-osx/Cabal-3.4.1.0/build/autogen/cabal_macros.h
+: hash: f4ab1a69ca0d6b2e20fe06c538a54296b101984385e1c0a81144c4bbda94e9f5
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/README.md:
+  hash: 635df8642dad21f81f3de1fc9f018e6ec643c40fdb520b0e76f4db124f4271da
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/package.yaml:
+  hash: 77cec05749302e7a0dc82aa5f9e803c1774109bcad164fc887e6ea4abd6f905a
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/src/BinTree.hs:
+  hash: 4484e16a2dee4e42a1ae0935900dca87e85cc27907833ed56169af164c0aeabd
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/src/Examples.hs:
+  hash: 9b7a50b02154ef8f18da1ffe13c0e4e9dacfeff12b4a4e5052fe1f6b596de2b5
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/src/IntPair.hs:
+  hash: f9b3dbbdcea1f57d4ac0ed933080e2f58945b3674e2e6ff4df31055abe544869
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/src/List.hs:
+  hash: ce52643382bd8e077f95faf6a4a185241121644cb915502fbbd866789703ed42
+/Users/malcolmpaltiraja/Documents/Uni Files/FIT2102/ass2/a2/FIT2102/week 6/tute6/tute6.cabal:
+  hash: fc1ee4b0a68144e85069a9023fd05ab7288cb1149ad320a46d72d0671140bacc
